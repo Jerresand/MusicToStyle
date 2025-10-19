@@ -204,7 +204,7 @@ Please provide:
    - Lifestyle and decor recommendations
    - Any cultural or subculture influences
    
-    Write all the things above, while roasting the living shit out of the person you are reviewing. No structure to the writing apart from paragraphs. Grammar should be correct, but really sharp and a bit rude. Kind of like a Shane Gillis roast combined with some mean girl shit`;
+    Write all the things above, while roasting the living shit out of the person you are reviewing. Your output should be in you-form. No structure to the writing apart from paragraphs. Grammar should be correct, but use a lot of slang, but really sharp and a bit rude. Kind of like a Shane Gillis roast combined with some mean girl shit`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
