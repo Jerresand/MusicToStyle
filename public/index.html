@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicToStyle - Discover Your Music Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1db954, #191414);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #1db954, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .login-btn {
+            background: #1db954;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .login-btn:hover {
+            background: #1ed760;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 185, 84, 0.4);
+        }
+
+        .features {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature h3 {
+            margin-bottom: 0.5rem;
+            color: #1db954;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 MusicToStyle</h1>
+        <p class="subtitle">Discover your music style through your Spotify listening habits</p>
+        
+        <div id="error-container"></div>
+        
+        <a href="/login" class="login-btn">Connect with Spotify</a>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>📊 Top Tracks</h3>
+                <p>See your most played songs across different time periods</p>
+            </div>
+            <div class="feature">
+                <h3>🎨 Style Analysis</h3>
+                <p>Discover patterns in your music preferences</p>
+            </div>
+            <div class="feature">
+                <h3>📈 Insights</h3>
+                <p>Get detailed analytics about your listening habits</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for error parameters in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        
+        if (error) {
+            const errorContainer = document.getElementById('error-container');
+            let errorMessage = '';
+            
+            switch (error) {
+                case 'state_mismatch':
+                    errorMessage = 'Authentication failed. Please try again.';
+                    break;
+                case 'invalid_token':
+                    errorMessage = 'Invalid authentication token. Please try again.';
+                    break;
+                default:
+                    errorMessage = 'An error occurred during authentication.';
+            }
+            
+            errorContainer.innerHTML = `<div class="error">${errorMessage}</div>`;
+        }
+    </script>
+</body>
+</html>

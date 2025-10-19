@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MusicToStyle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1db954, #191414);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1db954;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #1db954;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid #1db954;
+            color: #1db954;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #1db954;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .time-range-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .time-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-btn.active {
+            background: #1db954;
+            border-color: #1db954;
+        }
+
+        .time-btn:hover {
+            background: rgba(29, 185, 84, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .tracks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .track-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .track-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .track-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .track-details h3 {
+            margin-bottom: 0.5rem;
+            color: #1db954;
+        }
+
+        .track-details p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .track-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .profile-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            border: 3px solid #1db954;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .time-range-selector {
+                flex-wrap: wrap;
+            }
+
+            .tracks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🎵 MusicToStyle</div>
+        <div class="user-info">
+            <img id="user-avatar" class="user-avatar" src="" alt="User Avatar">
+            <span id="user-name"></span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="profile-section">
+            <img id="profile-image" class="profile-image" src="" alt="Profile">
+            <h2 id="profile-name"></h2>
+            <p id="profile-followers"></p>
+        </div>
+
+        <div class="time-range-selector">
+            <button class="time-btn active" data-range="short_term">Last 4 weeks</button>
+            <button class="time-btn" data-range="medium_term">Last 6 months</button>
+            <button class="time-btn" data-range="long_term">All time</button>
+        </div>
+
+        <div id="error-container"></div>
+        <div id="loading" class="loading" style="display: none;">Loading your top tracks...</div>
+        <div id="tracks-container" class="tracks-grid"></div>
+    </div>
+
+    <script>
+        let accessToken = null;
+        let userProfile = null;
+
+        // Get access token from URL fragment
+        function getAccessTokenFromUrl() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            return params.get('access_token');
+        }
+
+        // Initialize the dashboard
+        async function initDashboard() {
+            // First try to get token from URL fragment (after OAuth callback)
+            accessToken = getAccessTokenFromUrl();
+            
+            if (accessToken) {
+                // Store token in localStorage for future use
+                localStorage.setItem('spotify_access_token', accessToken);
+                // Clear the URL fragment for security
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                // Try to get token from localStorage
+                accessToken = localStorage.getItem('spotify_access_token');
+            }
+            
+            if (!accessToken) {
+                // Redirect to login if no token
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                await loadUserProfile();
+                await loadTopTracks('medium_term');
+                setupTimeRangeButtons();
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                showError('Failed to load dashboard. Please try logging in again.');
+            }
+        }
+
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch profile');
+                }
+
+                userProfile = await response.json();
+                
+                document.getElementById('profile-name').textContent = userProfile.display_name;
+                document.getElementById('profile-followers').textContent = `${userProfile.followers.total.toLocaleString()} followers`;
+                document.getElementById('profile-image').src = userProfile.images[0]?.url || '/default-avatar.png';
+                document.getElementById('user-name').textContent = userProfile.display_name;
+                document.getElementById('user-avatar').src = userProfile.images[0]?.url || '/default-avatar.png';
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                throw error;
+            }
+        }
+
+        // Load top tracks
+        async function loadTopTracks(timeRange) {
+            const loadingEl = document.getElementById('loading');
+            const tracksContainer = document.getElementById('tracks-container');
+            
+            loadingEl.style.display = 'block';
+            tracksContainer.innerHTML = '';
+
+            try {
+                const response = await fetch(`/api/top-tracks?time_range=${timeRange}&limit=20`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch top tracks');
+                }
+
+                const data = await response.json();
+                displayTracks(data.items);
+            } catch (error) {
+                console.error('Error loading top tracks:', error);
+                showError('Failed to load top tracks. Please try again.');
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // Display tracks
+        function displayTracks(tracks) {
+            const container = document.getElementById('tracks-container');
+            
+            if (tracks.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">No tracks found for this time period.</p>';
+                return;
+            }
+
+            container.innerHTML = tracks.map(track => `
+                <div class="track-card">
+                    <div class="track-info">
+                        <img src="${track.album.images[0]?.url || '/default-album.png'}" 
+                             alt="${track.album.name}" class="track-image">
+                        <div class="track-details">
+                            <h3>${track.name}</h3>
+                            <p>${track.artists.map(artist => artist.name).join(', ')}</p>
+                        </div>
+                    </div>
+                    <div class="track-stats">
+                        <span>Album: ${track.album.name}</span>
+                        <span>Popularity: ${track.popularity}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Setup time range buttons
+        function setupTimeRangeButtons() {
+            const buttons = document.querySelectorAll('.time-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    loadTopTracks(button.dataset.range);
+                });
+            });
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('spotify_access_token');
+            window.location.href = '/';
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
