@@ -176,6 +176,90 @@
             border: 3px solid #1db954;
         }
 
+        .analysis-section {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(45deg, #1db954, #1ed760);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .analysis-loading {
+            margin-top: 2rem;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #1db954;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .analysis-result {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .analysis-result h3 {
+            color: #1db954;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .analysis-result p {
+            margin-bottom: 1rem;
+        }
+
+        .analysis-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 1rem;
@@ -191,6 +275,24 @@
 
             .tracks-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .analysis-section {
+                padding: 1rem;
+            }
+
+            .analyze-btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+
+            .analysis-result {
+                padding: 1rem;
+            }
+
+            .analysis-stats {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
     </style>
@@ -216,6 +318,17 @@
             <button class="time-btn active" data-range="short_term">Last 4 weeks</button>
             <button class="time-btn" data-range="medium_term">Last 6 months</button>
             <button class="time-btn" data-range="long_term">All time</button>
+        </div>
+
+        <div class="analysis-section">
+            <button id="analyze-btn" class="analyze-btn" onclick="analyzeMusicalTaste()">
+                🎨 Analyze My Musical Taste & Get Style Recommendations
+            </button>
+            <div id="analysis-loading" class="analysis-loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Analyzing your musical taste and generating aesthetic recommendations...</p>
+            </div>
+            <div id="analysis-result" class="analysis-result" style="display: none;"></div>
         </div>
 
         <div id="error-container"></div>
@@ -363,6 +476,55 @@
         function showError(message) {
             const errorContainer = document.getElementById('error-container');
             errorContainer.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        // Analyze musical taste function
+        async function analyzeMusicalTaste() {
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const loadingEl = document.getElementById('analysis-loading');
+            const resultEl = document.getElementById('analysis-result');
+            
+            // Disable button and show loading
+            analyzeBtn.disabled = true;
+            loadingEl.style.display = 'block';
+            resultEl.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/analyze-taste', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to analyze musical taste');
+                }
+
+                const data = await response.json();
+                
+                // Display the analysis result
+                resultEl.innerHTML = `
+                    <h3>🎨 Your Aesthetic Analysis</h3>
+                    <div style="white-space: pre-line;">${data.analysis}</div>
+                    <div class="analysis-stats">
+                        <span>📊 ${data.tracksAnalyzed} tracks analyzed</span>
+                        <span>⏰ ${data.timeRange}</span>
+                    </div>
+                `;
+                
+                resultEl.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error analyzing musical taste:', error);
+                showError('Failed to analyze your musical taste. Please try again.');
+            } finally {
+                // Re-enable button and hide loading
+                analyzeBtn.disabled = false;
+                loadingEl.style.display = 'none';
+            }
         }
 
         // Logout function

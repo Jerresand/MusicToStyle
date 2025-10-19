@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const querystring = require('querystring');
+const OpenAI = require('openai');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +16,11 @@ app.use(express.static('public'));
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/callback';
+
+// OpenAI configuration
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 // Generate random string for state parameter
 const generateRandomString = (length) => {
@@ -140,6 +146,89 @@ app.get('/api/profile', async (req, res) => {
     console.error('Error fetching profile:', error.response?.data || error.message);
     res.status(error.response?.status || 500).json({ 
       error: 'Failed to fetch profile',
+      details: error.response?.data || error.message
+    });
+  }
+});
+
+// Analyze musical taste and generate aesthetic recommendations
+app.post('/api/analyze-taste', async (req, res) => {
+  const accessToken = req.headers.authorization?.replace('Bearer ', '');
+  
+  if (!accessToken) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  try {
+    // Get user's top tracks for the last 6 months (medium_term)
+    const tracksResponse = await axios.get('https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    const tracks = tracksResponse.data.items;
+    
+    if (tracks.length === 0) {
+      return res.status(400).json({ error: 'No tracks found for analysis' });
+    }
+
+    // Prepare track data for analysis
+    const trackData = tracks.map(track => ({
+      name: track.name,
+      artists: track.artists.map(artist => artist.name).join(', '),
+      album: track.album.name,
+      genres: track.artists[0]?.genres || [],
+      popularity: track.popularity,
+      explicit: track.explicit
+    }));
+
+    // Create prompt for OpenAI
+    const prompt = `Based on the following list of songs that a person has been listening to over the last 6 months, analyze their musical taste and provide aesthetic recommendations for their personal style, fashion, and lifestyle preferences.
+
+Songs they've been listening to:
+${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
+
+Please provide:
+1. A brief analysis of their musical taste and personality traits it suggests
+2. Specific aesthetic recommendations including:
+   - Fashion style suggestions
+   - Color palette preferences
+   - Lifestyle and decor recommendations
+   - Any cultural or subculture influences
+
+Keep the response engaging, specific, and actionable. Focus on how their music taste translates to visual and lifestyle aesthetics.`;
+
+    // Call OpenAI API
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a style consultant who specializes in translating musical taste into aesthetic recommendations. You provide insightful, specific, and actionable advice about fashion, lifestyle, and visual preferences based on someone's music listening habits."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: 1000,
+      temperature: 0.7
+    });
+
+    const analysis = completion.choices[0].message.content;
+
+    res.json({
+      success: true,
+      analysis: analysis,
+      tracksAnalyzed: tracks.length,
+      timeRange: 'Last 6 months'
+    });
+
+  } catch (error) {
+    console.error('Error analyzing musical taste:', error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({ 
+      error: 'Failed to analyze musical taste',
       details: error.response?.data || error.message
     });
   }
