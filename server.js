@@ -184,7 +184,7 @@ app.post('/api/analyze-taste', async (req, res) => {
     }));
 
     // Create prompt for OpenAI
-    const prompt = `Based on the following list of songs that a person has been listening to over the last 6 months, analyze their musical taste and provide aesthetic recommendations for their personal style, fashion, and lifestyle preferences.
+    const prompt = `Based on the following list of songs that a person has been listening to over the last 6 months, analyze their musical taste and provide aesthetic recommendations for their personal style, fashion, and lifestyle preferences. Write all the recommendations as if you are a pretentious culture critic. No structure to the writing apart from paragraphs. Grammar should be correct, but creative, sharp, maybe even curse a bit.
 
 Songs they've been listening to:
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
@@ -195,9 +195,7 @@ Please provide:
    - Fashion style suggestions
    - Color palette preferences
    - Lifestyle and decor recommendations
-   - Any cultural or subculture influences
-
-Keep the response engaging, specific, and actionable. Focus on how their music taste translates to visual and lifestyle aesthetics.`;
+   - Any cultural or subculture influences`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
