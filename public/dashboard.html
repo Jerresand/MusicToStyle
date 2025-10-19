@@ -412,7 +412,7 @@
 
             try {
                 await loadUserProfile();
-                await loadTopTracks('medium_term');
+                await loadTopTracks('short_term'); // Load short_term to match the active button
                 setupTimeRangeButtons();
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
