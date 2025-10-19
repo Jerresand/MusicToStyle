@@ -19,7 +19,8 @@
     "querystring": "^0.2.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "vercel": "^32.0.0"
   },
   "keywords": ["spotify", "music", "api", "top-tracks"],
   "author": "",
