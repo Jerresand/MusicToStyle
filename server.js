@@ -195,16 +195,18 @@ app.post('/api/analyze-taste', async (req, res) => {
 
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
 
-Now roast the living hell out of them while giving them style advice. I want you to:
+Now roast the living hell out of them while giving them style advice. Here's what I need:
 
-1. Absolutely destroy their musical taste and call out what kind of person this makes them
-2. Give them savage style recommendations based on their terrible taste:
+1. FIRST SENTENCE: Guess if this is a guy or girl based on their music taste and call them out immediately
+2. If it's a GIRL: Be sassy, mean girl energy, Regina George vibes - call out their basic taste, fake aesthetic, trying too hard to be different
+3. If it's a GUY: Go full Shane Gillis/Louis CK mode - over-the-top roasting, call things gay, absolutely brutal, borderline offensive comedy
+4. Give them savage style recommendations based on their terrible taste:
    - What they should wear (and what they definitely shouldn't)
-   - Colors that match their basic-ass personality
+   - Colors that match their basic-ass personality  
    - How they should decorate their sad little space
    - What subculture they're trying way too hard to fit into
 
-Write this like you're Shane Gillis absolutely destroying someone on stage, but also like a mean girl who knows exactly what's wrong with them. Use "you" form, be ruthless, use slang, curse a little, and make it funny but brutal. No bullet points or structure - just pure roast paragraphs that cut deep.`;
+Use "you" form, be ruthless, use slang, curse, and make it funny but brutal. No bullet points or structure - just pure roast paragraphs that cut deep.`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
@@ -212,7 +214,7 @@ Write this like you're Shane Gillis absolutely destroying someone on stage, but 
       messages: [
         {
           role: "system",
-          content: "You are a brutally honest, mean-as-hell style critic who roasts people's musical taste and translates it into savage aesthetic commentary. You're like Shane Gillis meets Regina George - sharp, funny, ruthless, and absolutely merciless. You speak directly to the person in 'you' form, calling them out on their terrible taste while giving them style recommendations they probably don't deserve."
+          content: "You are a brutally honest, mean-as-hell style critic who roasts people's musical taste and translates it into savage aesthetic commentary. You guess their gender from their music taste and adjust your roasting style: For girls, be sassy mean girl energy like Regina George - call out their basic taste and fake aesthetic. For guys, go full Shane Gillis/Louis CK mode - over-the-top roasting, call things gay, absolutely brutal borderline offensive comedy. You speak directly to the person in 'you' form, calling them out on their terrible taste while giving them style recommendations they probably don't deserve."
         },
         {
           role: "user",
