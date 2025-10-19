@@ -191,28 +191,28 @@ app.post('/api/analyze-taste', async (req, res) => {
                          timeRange === 'medium_term' ? 'the last 6 months' : 
                          'all time';
     
-    const prompt = `Based on the following list of songs that a person has been listening to over ${timeRangeText}, analyze their musical taste and provide aesthetic recommendations for their personal style, fashion, and lifestyle preferences.
+    const prompt = `Alright, look at this absolute disaster of a music taste. This person has been listening to these absolute bangers over ${timeRangeText}:
 
-Songs they've been listening to:
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
 
-Please provide:
-1. A brief analysis of their musical taste and personality traits it suggests
-2. Specific aesthetic recommendations including:
-   - Fashion style suggestions
-   - Color palette preferences
-   - Lifestyle and decor recommendations
-   - Any cultural or subculture influences
-   
-    Write all the things above, while roasting the living shit out of the person you are reviewing. Your output should be in you-form. No structure to the writing apart from paragraphs. Grammar should be correct, but use a lot of slang, but really sharp and a bit rude. Kind of like a Shane Gillis roast combined with some mean girl shit`;
+Now roast the living hell out of them while giving them style advice. I want you to:
+
+1. Absolutely destroy their musical taste and call out what kind of person this makes them
+2. Give them savage style recommendations based on their terrible taste:
+   - What they should wear (and what they definitely shouldn't)
+   - Colors that match their basic-ass personality
+   - How they should decorate their sad little space
+   - What subculture they're trying way too hard to fit into
+
+Write this like you're Shane Gillis absolutely destroying someone on stage, but also like a mean girl who knows exactly what's wrong with them. Use "you" form, be ruthless, use slang, curse a little, and make it funny but brutal. No bullet points or structure - just pure roast paragraphs that cut deep.`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a style consultant who specializes in translating musical taste into aesthetic recommendations. You provide insightful, specific, and actionable advice about fashion, lifestyle, and visual preferences based on someone's music listening habits."
+          content: "You are a brutally honest, mean-as-hell style critic who roasts people's musical taste and translates it into savage aesthetic commentary. You're like Shane Gillis meets Regina George - sharp, funny, ruthless, and absolutely merciless. You speak directly to the person in 'you' form, calling them out on their terrible taste while giving them style recommendations they probably don't deserve."
         },
         {
           role: "user",
