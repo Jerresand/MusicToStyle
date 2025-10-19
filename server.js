@@ -163,6 +163,13 @@ app.post('/api/analyze-taste', async (req, res) => {
     // Get time range from request body, default to medium_term
     const timeRange = req.body.time_range || 'medium_term';
     
+    // Get user's profile for name/gender detection
+    const profileResponse = await axios.get('https://api.spotify.com/v1/me', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+    
     // Get user's top tracks for the specified time range
     const tracksResponse = await axios.get(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=50`, {
       headers: {
@@ -191,13 +198,13 @@ app.post('/api/analyze-taste', async (req, res) => {
                          timeRange === 'medium_term' ? 'the last 6 months' : 
                          'all time';
     
-    const prompt = `Alright, look at this absolute disaster of a music taste. This person has been listening to these absolute bangers over ${timeRangeText}:
+    const prompt = `Alright, look at this absolute disaster of a music taste. This person's name is "${profileResponse.data.display_name}" and they've been listening to these absolute bangers over ${timeRangeText}:
 
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
 
 Now roast the living hell out of them while giving them style advice. Here's what I need:
 
-1. FIRST SENTENCE: Guess if this is a guy or girl based on their music taste and call them out immediately
+1. FIRST SENTENCE: Use their name "${profileResponse.data.display_name}" and guess if this is a guy or girl based on their name and music taste, then call them out immediately
 2. If it's a GIRL: Be sassy, mean girl energy, Regina George vibes - call out their basic taste, fake aesthetic, trying too hard to be different
 3. If it's a GUY: Go full Shane Gillis/Louis CK mode - over-the-top roasting, call things gay, absolutely brutal, borderline offensive comedy
 4. Give them savage style recommendations based on their terrible taste:
