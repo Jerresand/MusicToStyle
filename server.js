@@ -40,6 +40,112 @@ const scopes = [
   'user-read-recently-played'
 ];
 
+// Parse style recommendations from OpenAI response
+function parseStyleRecommendations(analysis) {
+  const recommendations = [];
+  
+  // Extract content between [STYLE_RECOMMENDATIONS] and [/STYLE_RECOMMENDATIONS]
+  const regex = /\[STYLE_RECOMMENDATIONS\]([\s\S]*?)\[\/STYLE_RECOMMENDATIONS\]/;
+  const match = analysis.match(regex);
+  
+  if (!match) {
+    return recommendations;
+  }
+  
+  const content = match[1].trim();
+  const sections = content.split('CATEGORY:').filter(section => section.trim());
+  
+  sections.forEach(section => {
+    const lines = section.trim().split('\n');
+    const category = lines[0]?.trim();
+    
+    if (!category) return;
+    
+    let items = [];
+    let style = '';
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('ITEMS:')) {
+        items = line.replace('ITEMS:', '').split(',').map(item => item.trim()).filter(item => item);
+      } else if (line.startsWith('STYLE:')) {
+        style = line.replace('STYLE:', '').trim();
+      }
+    }
+    
+    if (items.length > 0) {
+      recommendations.push({
+        category,
+        items,
+        style,
+        links: generateProductLinks(category, items)
+      });
+    }
+  });
+  
+  return recommendations;
+}
+
+// Generate product links based on category and items
+function generateProductLinks(category, items) {
+  const links = [];
+  
+  // Define search terms and affiliate links for different categories
+  const categoryMappings = {
+    'clothing': {
+      searchTerms: items.map(item => `${item} clothing`),
+      baseUrl: 'https://www.amazon.com/s?k=',
+      affiliateTag: '&tag=musictostyle-20'
+    },
+    'shoes': {
+      searchTerms: items.map(item => `${item} shoes`),
+      baseUrl: 'https://www.amazon.com/s?k=',
+      affiliateTag: '&tag=musictostyle-20'
+    },
+    'accessories': {
+      searchTerms: items.map(item => `${item} accessories`),
+      baseUrl: 'https://www.amazon.com/s?k=',
+      affiliateTag: '&tag=musictostyle-20'
+    },
+    'furniture': {
+      searchTerms: items.map(item => `${item} furniture`),
+      baseUrl: 'https://www.amazon.com/s?k=',
+      affiliateTag: '&tag=musictostyle-20'
+    },
+    'home decor': {
+      searchTerms: items.map(item => `${item} home decor`),
+      baseUrl: 'https://www.amazon.com/s?k=',
+      affiliateTag: '&tag=musictostyle-20'
+    },
+    'art': {
+      searchTerms: items.map(item => `${item} wall art`),
+      baseUrl: 'https://www.amazon.com/s?k=',
+      affiliateTag: '&tag=musictostyle-20'
+    }
+  };
+  
+  // Default to general search if category not found
+  const mapping = categoryMappings[category.toLowerCase()] || {
+    searchTerms: items.map(item => `${item} ${category}`),
+    baseUrl: 'https://www.amazon.com/s?k=',
+    affiliateTag: '&tag=musictostyle-20'
+  };
+  
+  items.forEach((item, index) => {
+    const searchTerm = mapping.searchTerms[index] || `${item} ${category}`;
+    const encodedTerm = encodeURIComponent(searchTerm);
+    const link = `${mapping.baseUrl}${encodedTerm}${mapping.affiliateTag}`;
+    
+    links.push({
+      item: item,
+      url: link,
+      searchTerm: searchTerm
+    });
+  });
+  
+  return links;
+}
+
 // Routes
 
 // Home page
@@ -205,15 +311,26 @@ ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.arti
 Now roast the living hell out of them while giving them style advice. Here's what I need:
 
 1. FIRST SENTENCE: Use their name "${profileResponse.data.display_name}" and guess if this is a guy or girl based on their name and music taste, then call them out immediately
-2. If it's a GIRL: Be sassy, mean girl energy, Regina George vibes - call out their basic taste, fake aesthetic, trying too hard to be different
-3. If it's a GUY: Go full Shane Gillis/Louis CK mode - over-the-top roasting, call things gay, absolutely brutal, borderline offensive comedy
+2. If it's a GIRL: Be sassy, mean girl energy, Regina George vibes - call out their taste, be really rude, I need some shock factor, however weave in some mildly positive remarks to give some nuance.
+3. If it's a GUY: Go full Shane Gillis/Louis CK mode - over-the-top roasting, call things gay, absolutely brutal, offensive comedy, however weave in some mildly positive remarks to give some nuance.
 4. Give them savage style recommendations based on their terrible taste:
    - What they should wear (and what they definitely shouldn't)
    - Colors that match their basic-ass personality  
    - How they should decorate their sad little space
    - What subculture they're trying way too hard to fit into
 
-Use "you" form, be ruthless, use slang, curse, and make it funny but brutal. No bullet points or structure - just pure roast paragraphs that cut deep.`;
+Use "you" form, be ruthless, use slang, curse, and make it funny but brutal. No bullet points or structure - just pure roast paragraphs that cut deep.
+
+After your roast, provide specific product recommendations in this EXACT format:
+[STYLE_RECOMMENDATIONS]
+CATEGORY: [category name]
+ITEMS: [specific item 1], [specific item 2], [specific item 3]
+STYLE: [brief style description]
+
+CATEGORY: [next category]
+ITEMS: [specific item 1], [specific item 2], [specific item 3]
+STYLE: [brief style description]
+[/STYLE_RECOMMENDATIONS]`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
@@ -234,9 +351,13 @@ Use "you" form, be ruthless, use slang, curse, and make it funny but brutal. No 
 
     const analysis = completion.choices[0].message.content;
 
+    // Parse style recommendations from the analysis
+    const styleRecommendations = parseStyleRecommendations(analysis);
+
     res.json({
       success: true,
       analysis: analysis,
+      styleRecommendations: styleRecommendations,
       tracksAnalyzed: tracks.length,
       timeRange: timeRangeText
     });

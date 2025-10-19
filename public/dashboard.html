@@ -219,6 +219,70 @@
             color: #666666;
         }
 
+        .style-recommendations {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .style-recommendations h4 {
+            color: #000000;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .recommendation-category {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .recommendation-category h5 {
+            color: #000000;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .style-description {
+            color: #666666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .product-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .product-link {
+            background: #000000;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid #000000;
+        }
+
+        .product-link:hover {
+            background: #333333;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-link:active {
+            transform: translateY(0);
+        }
+
         .loading {
             text-align: center;
             padding: 2rem;
@@ -334,6 +398,25 @@
 
             .profile-section {
                 padding: 1.5rem;
+            }
+
+            .style-recommendations {
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+            }
+
+            .recommendation-category {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .product-links {
+                gap: 0.5rem;
+            }
+
+            .product-link {
+                padding: 6px 12px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -552,9 +635,32 @@
                 const data = await response.json();
                 
                 // Display the analysis result
+                let recommendationsHtml = '';
+                if (data.styleRecommendations && data.styleRecommendations.length > 0) {
+                    recommendationsHtml = `
+                        <div class="style-recommendations">
+                            <h4>🛍️ Style Recommendations</h4>
+                            ${data.styleRecommendations.map(rec => `
+                                <div class="recommendation-category">
+                                    <h5>${rec.category}</h5>
+                                    <p class="style-description">${rec.style}</p>
+                                    <div class="product-links">
+                                        ${rec.links.map(link => `
+                                            <a href="${link.url}" target="_blank" class="product-link">
+                                                ${link.item}
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
                 resultEl.innerHTML = `
                     <h3>🎨 What Your Music Taste Says About You</h3>
                     <div style="white-space: pre-line;">${data.analysis}</div>
+                    ${recommendationsHtml}
                     <div class="analysis-stats">
                         <span>📊 ${data.tracksAnalyzed} tracks analyzed</span>
                         <span>⏰ ${data.timeRange}</span>
@@ -582,5 +688,11 @@
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', initDashboard);
     </script>
+    
+    <!-- Vercel Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
