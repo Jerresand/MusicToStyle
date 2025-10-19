@@ -363,7 +363,7 @@
 
         <div class="analysis-section">
             <button id="analyze-btn" class="analyze-btn" onclick="analyzeMusicalTaste()">
-                🎨 Analyze My Musical Taste & Get Style Recommendations
+                Analyze Taste
             </button>
             <div id="analysis-loading" class="analysis-loading" style="display: none;">
                 <div class="loading-spinner"></div>
@@ -380,6 +380,7 @@
     <script>
         let accessToken = null;
         let userProfile = null;
+        let currentTimeRange = 'short_term'; // Track current time range
 
         // Get access token from URL fragment
         function getAccessTokenFromUrl() {
@@ -508,6 +509,7 @@
                 button.addEventListener('click', () => {
                     buttons.forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
+                    currentTimeRange = button.dataset.range; // Update current time range
                     loadTopTracks(button.dataset.range);
                 });
             });
@@ -536,7 +538,10 @@
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        time_range: currentTimeRange
+                    })
                 });
 
                 if (!response.ok) {

@@ -160,8 +160,11 @@ app.post('/api/analyze-taste', async (req, res) => {
   }
 
   try {
-    // Get user's top tracks for the last 6 months (medium_term)
-    const tracksResponse = await axios.get('https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50', {
+    // Get time range from request body, default to medium_term
+    const timeRange = req.body.time_range || 'medium_term';
+    
+    // Get user's top tracks for the specified time range
+    const tracksResponse = await axios.get(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=50`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
@@ -184,7 +187,11 @@ app.post('/api/analyze-taste', async (req, res) => {
     }));
 
     // Create prompt for OpenAI
-    const prompt = `Based on the following list of songs that a person has been listening to over the last 6 months, analyze their musical taste and provide aesthetic recommendations for their personal style, fashion, and lifestyle preferences. Write all the recommendations as if you are a pretentious culture critic. No structure to the writing apart from paragraphs. Grammar should be correct, but creative, sharp, maybe even curse a bit.
+    const timeRangeText = timeRange === 'short_term' ? 'the last 4 weeks' : 
+                         timeRange === 'medium_term' ? 'the last 6 months' : 
+                         'all time';
+    
+    const prompt = `Based on the following list of songs that a person has been listening to over ${timeRangeText}, analyze their musical taste and provide aesthetic recommendations for their personal style, fashion, and lifestyle preferences.
 
 Songs they've been listening to:
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
@@ -195,7 +202,9 @@ Please provide:
    - Fashion style suggestions
    - Color palette preferences
    - Lifestyle and decor recommendations
-   - Any cultural or subculture influences`;
+   - Any cultural or subculture influences
+   
+    Write all the recommendations as if the person you are reviewing is beneath you, as if you are a pretentious culture critic that is better than everyone else. No structure to the writing apart from paragraphs. Grammar should be correct, but creative, sharp, maybe even curse a bit.`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
@@ -220,7 +229,7 @@ Please provide:
       success: true,
       analysis: analysis,
       tracksAnalyzed: tracks.length,
-      timeRange: 'Last 6 months'
+      timeRange: timeRangeText
     });
 
   } catch (error) {
