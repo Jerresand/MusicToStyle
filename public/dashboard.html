@@ -497,6 +497,13 @@
                 await loadUserProfile();
                 await loadTopTracks('short_term'); // Load short_term to match the active button
                 setupTimeRangeButtons();
+                
+                // Track successful login
+                if (window.va) {
+                    window.va('track', 'Dashboard Loaded', {
+                        userName: userProfile?.display_name || 'Unknown'
+                    });
+                }
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
                 showError('Failed to load dashboard. Please try logging in again.');
@@ -646,7 +653,7 @@
                                     <p class="style-description">${rec.style}</p>
                                     <div class="product-links">
                                         ${rec.links.map(link => `
-                                            <a href="${link.url}" target="_blank" class="product-link">
+                                            <a href="${link.url}" target="_blank" class="product-link" onclick="trackProductClick('${link.item}', '${rec.category}')">
                                                 ${link.item}
                                             </a>
                                         `).join('')}
@@ -669,6 +676,15 @@
                 
                 resultEl.style.display = 'block';
                 
+                // Track successful analysis
+                if (window.va) {
+                    window.va('track', 'Taste Analysis Completed', {
+                        timeRange: currentTimeRange,
+                        tracksAnalyzed: data.tracksAnalyzed,
+                        hasRecommendations: data.styleRecommendations && data.styleRecommendations.length > 0
+                    });
+                }
+                
             } catch (error) {
                 console.error('Error analyzing musical taste:', error);
                 showError('Failed to analyze your musical taste. Please try again.');
@@ -683,6 +699,17 @@
         function logout() {
             localStorage.removeItem('spotify_access_token');
             window.location.href = '/';
+        }
+
+        // Track product link clicks
+        function trackProductClick(item, category) {
+            if (window.va) {
+                window.va('track', 'Product Link Clicked', {
+                    item: item,
+                    category: category,
+                    timeRange: currentTimeRange
+                });
+            }
         }
 
         // Initialize dashboard when page loads
