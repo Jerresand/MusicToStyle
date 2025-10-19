@@ -304,24 +304,31 @@ app.post('/api/analyze-taste', async (req, res) => {
                          timeRange === 'medium_term' ? 'the last 6 months' : 
                          'all time';
     
-    const prompt = `Alright, look at this absolute disaster of a music taste. This person's name is "${profileResponse.data.display_name}" and they've been listening to these absolute bangers over ${timeRangeText}:
+    const prompt = `Listen up, you judgmental piece of shit. I need you to analyze this person's music taste with some actual nuance for once. Their name is "${profileResponse.data.display_name}" and here's what they've been bumping over ${timeRangeText}:
 
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
 
-Now roast the living hell out of them while giving them style advice. Here's what I need:
+Here's the fucking deal - I want VARIANCE in your criticism. Don't just default to "everything is trash." Actually look at what they're listening to:
 
-1. FIRST SENTENCE: Use their name "${profileResponse.data.display_name}" and guess if this is a guy or girl based on their name and music taste, then call them out immediately
-2. If it's a GIRL: Be sassy, mean girl energy, Regina George vibes - call out their taste, be really rude, I need some shock factor, however weave in some mildly positive remarks to give some nuance.
-3. If it's a GUY: Go full Shane Gillis/Louis CK mode - over-the-top roasting, call things gay, absolutely brutal, offensive comedy, however weave in some mildly positive remarks to give some nuance.
-4. Give them savage style recommendations based on their terrible taste:
-   - What they should wear (and what they definitely shouldn't)
-   - Colors that match their basic-ass personality  
-   - How they should decorate their sad little space
-   - What subculture they're trying way too hard to fit into
+- If they have genuinely good taste (classic albums, respected artists, diverse genres): Call them out for being pretentious assholes who probably name-drop bands to sound cool at parties. Roast their personality, not the music.
+- If they have basic/mainstream taste: Tear into how predictable and boring they are, but acknowledge that at least they're not trying too hard.
+- If they have genuinely bad taste (terrible pop, dated shit, problematic artists): Go absolutely savage on the music itself.
+- If they're trying too hard to be different: Destroy them for their performative edge and fake depth.
 
-Use "you" form, be ruthless, use slang, curse, and make it funny but brutal. No bullet points or structure - just pure roast paragraphs that cut deep.
+BE MORE DARING:
+- Use more profanity, be more offensive
+- Don't hold back on controversial takes
+- Call out specific problematic shit if you see it
+- Be sharper with your observations
 
-After your roast, provide specific product recommendations in this EXACT format:
+BUT ALSO BE SMART:
+- If someone's taste is actually good, acknowledge it while roasting their pretentiousness
+- If someone's taste is genuinely diverse and interesting, call them out for being insufferable know-it-alls
+- Don't just default to "everything sucks" - that's lazy as fuck
+
+Use "you" form, curse like a sailor, and make it brutally honest but with actual thought behind it. No bullet points - just flowing roast paragraphs that actually make sense.
+
+After your analysis, provide specific product recommendations in this EXACT format:
 [STYLE_RECOMMENDATIONS]
 CATEGORY: [category name]
 ITEMS: [specific item 1], [specific item 2], [specific item 3]
@@ -338,7 +345,7 @@ STYLE: [brief style description]
       messages: [
         {
           role: "system",
-          content: "You are a brutally honest, mean-as-hell style critic who roasts people's musical taste and translates it into savage aesthetic commentary. You guess their gender from their music taste and adjust your roasting style: For girls, be sassy mean girl energy like Regina George - call out their basic taste and fake aesthetic. For guys, go full Shane Gillis/Louis CK mode - over-the-top roasting, call things gay, absolutely brutal borderline offensive comedy. You speak directly to the person in 'you' form, calling them out on their terrible taste while giving them style recommendations they probably don't deserve."
+          content: "You are a brutally honest, sharp-tongued style critic who analyzes music taste with actual intelligence and variance. You're daring, profane, and don't hold back on controversial takes. You're not just mean for the sake of being mean - you actually assess the quality of their taste and roast accordingly. If someone has good taste, you call them pretentious assholes rather than shitting on the music itself. If they have bad taste, you destroy it. If they're basic, you roast their predictability. If they're trying too hard, you call out their performative bullshit. You use profanity liberally, make sharp observations, and deliver brutally honest critiques that actually make sense. You speak directly to the person in 'you' form and give them style recommendations based on your analysis."
         },
         {
           role: "user",
@@ -354,9 +361,24 @@ STYLE: [brief style description]
     // Parse style recommendations from the analysis
     const styleRecommendations = parseStyleRecommendations(analysis);
 
+    // Create links text to append to analysis
+    let linksText = '';
+    if (styleRecommendations && styleRecommendations.length > 0) {
+      linksText = '\n\n🛍️ **PRODUCT LINKS:**\n';
+      styleRecommendations.forEach(rec => {
+        linksText += `\n**${rec.category}:**\n`;
+        rec.links.forEach(link => {
+          linksText += `• [${link.item}](${link.url})\n`;
+        });
+      });
+    }
+
+    // Combine analysis with links
+    const finalAnalysis = analysis + linksText;
+
     res.json({
       success: true,
-      analysis: analysis,
+      analysis: finalAnalysis,
       styleRecommendations: styleRecommendations,
       tracksAnalyzed: tracks.length,
       timeRange: timeRangeText

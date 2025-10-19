@@ -497,13 +497,6 @@
                 await loadUserProfile();
                 await loadTopTracks('short_term'); // Load short_term to match the active button
                 setupTimeRangeButtons();
-                
-                // Track successful login
-                if (window.va) {
-                    window.va('track', 'Dashboard Loaded', {
-                        userName: userProfile?.display_name || 'Unknown'
-                    });
-                }
             } catch (error) {
                 console.error('Error initializing dashboard:', error);
                 showError('Failed to load dashboard. Please try logging in again.');
@@ -641,33 +634,9 @@
 
                 const data = await response.json();
                 
-                // Display the analysis result
-                let recommendationsHtml = '';
-                if (data.styleRecommendations && data.styleRecommendations.length > 0) {
-                    recommendationsHtml = `
-                        <div class="style-recommendations">
-                            <h4>🛍️ Style Recommendations</h4>
-                            ${data.styleRecommendations.map(rec => `
-                                <div class="recommendation-category">
-                                    <h5>${rec.category}</h5>
-                                    <p class="style-description">${rec.style}</p>
-                                    <div class="product-links">
-                                        ${rec.links.map(link => `
-                                            <a href="${link.url}" target="_blank" class="product-link" onclick="trackProductClick('${link.item}', '${rec.category}')">
-                                                ${link.item}
-                                            </a>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }
-
                 resultEl.innerHTML = `
                     <h3>🎨 What Your Music Taste Says About You</h3>
-                    <div style="white-space: pre-line;">${data.analysis}</div>
-                    ${recommendationsHtml}
+                    <div class="analysis-content">${data.analysis.replace(/\n/g, '<br>')}</div>
                     <div class="analysis-stats">
                         <span>📊 ${data.tracksAnalyzed} tracks analyzed</span>
                         <span>⏰ ${data.timeRange}</span>
@@ -675,15 +644,6 @@
                 `;
                 
                 resultEl.style.display = 'block';
-                
-                // Track successful analysis
-                if (window.va) {
-                    window.va('track', 'Taste Analysis Completed', {
-                        timeRange: currentTimeRange,
-                        tracksAnalyzed: data.tracksAnalyzed,
-                        hasRecommendations: data.styleRecommendations && data.styleRecommendations.length > 0
-                    });
-                }
                 
             } catch (error) {
                 console.error('Error analyzing musical taste:', error);
@@ -701,25 +661,8 @@
             window.location.href = '/';
         }
 
-        // Track product link clicks
-        function trackProductClick(item, category) {
-            if (window.va) {
-                window.va('track', 'Product Link Clicked', {
-                    item: item,
-                    category: category,
-                    timeRange: currentTimeRange
-                });
-            }
-        }
-
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', initDashboard);
     </script>
-    
-    <!-- Vercel Analytics -->
-    <script>
-        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
