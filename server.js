@@ -17,6 +17,20 @@ const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3000/callback';
 
+// Compute redirect URI dynamically to support multiple environments/domains
+function getRedirectUri(req) {
+  // If an explicit env override is set, prefer it
+  if (process.env.REDIRECT_URI) return process.env.REDIRECT_URI;
+
+  const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').split(',')[0].trim();
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  if (!host) {
+    // Fallback to default local redirect
+    return REDIRECT_URI;
+  }
+  return `${proto}://${host}/callback`;
+}
+
 // OpenAI configuration
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -158,11 +172,12 @@ app.get('/login', (req, res) => {
   const state = generateRandomString(16);
   const scope = scopes.join(' ');
 
+  const dynamicRedirectUri = getRedirectUri(req);
   const authParams = querystring.stringify({
     response_type: 'code',
     client_id: SPOTIFY_CLIENT_ID,
     scope: scope,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: dynamicRedirectUri,
     state: state
   });
 
@@ -179,11 +194,12 @@ app.get('/callback', async (req, res) => {
   } else {
     try {
       // Exchange code for access token
+      const dynamicRedirectUri = getRedirectUri(req);
       const tokenResponse = await axios.post('https://accounts.spotify.com/api/token', 
         querystring.stringify({
           grant_type: 'authorization_code',
           code: code,
-          redirect_uri: REDIRECT_URI
+          redirect_uri: dynamicRedirectUri
         }),
         {
           headers: {

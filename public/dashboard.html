@@ -513,7 +513,9 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch profile');
+                    let details = '';
+                    try { details = JSON.stringify(await response.json()); } catch {}
+                    throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText} ${details}`);
                 }
 
                 userProfile = await response.json();
@@ -525,6 +527,7 @@
                 document.getElementById('user-avatar').src = userProfile.images[0]?.url || '/default-avatar.png';
             } catch (error) {
                 console.error('Error loading profile:', error);
+                showError('Failed to fetch profile. Please try logging in again.');
                 throw error;
             }
         }
