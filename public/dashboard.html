@@ -513,6 +513,18 @@
             color: #999999;
         }
 
+        .ai-reason {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-style: italic;
+            margin: 0.5rem 0;
+            border-left: 3px solid #2196f3;
+            line-height: 1.4;
+        }
+
         .track-actions {
             margin-left: 1rem;
         }
@@ -1154,7 +1166,7 @@
             loadingEl.style.display = 'none';
             recommendationsEl.style.display = 'block';
 
-            // Generate recommendations HTML
+            // Generate recommendations HTML with AI reasoning
             const recommendationsHTML = recommendations.map(track => `
                 <div class="track-recommendation" onclick="playTrackPreview('${track.preview_url}')">
                     <div class="track-image">
@@ -1167,6 +1179,7 @@
                         <h5 class="track-name">${track.name}</h5>
                         <p class="track-artist">${track.artists.map(artist => artist.name).join(', ')}</p>
                         <p class="track-album">${track.album.name}</p>
+                        ${track.aiReason ? `<div class="ai-reason">🤖 ${track.aiReason}</div>` : ''}
                         <div class="track-meta">
                             <span class="track-popularity">Popularity: ${track.popularity}%</span>
                             <span class="track-duration">${Math.floor(track.duration_ms / 60000)}:${String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}</span>

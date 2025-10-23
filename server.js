@@ -414,7 +414,7 @@ STYLE: [brief style description]
   }
 });
 
-// Get music recommendations based on user's top tracks
+// Get music recommendations based on user's top tracks using OpenAI + Spotify tracks API
 app.get('/api/recommendations', async (req, res) => {
   const accessToken = req.headers.authorization?.replace('Bearer ', '');
   
@@ -422,12 +422,16 @@ app.get('/api/recommendations', async (req, res) => {
     return res.status(401).json({ error: 'Access token required' });
   }
 
+  if (!openai) {
+    return res.status(500).json({ error: 'OpenAI service not configured' });
+  }
+
   try {
     const timeRange = req.query.time_range || 'medium_term';
     const limit = req.query.limit || 5;
 
-    // Get user's top tracks to use as seed
-    const tracksResponse = await axios.get(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=5`, {
+    // Get user's top tracks to analyze their taste
+    const tracksResponse = await axios.get(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=20`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
@@ -439,44 +443,131 @@ app.get('/api/recommendations', async (req, res) => {
       return res.status(400).json({ error: 'No tracks found for recommendations' });
     }
 
-    // Get seed artists and tracks for recommendations
-    const seedTracks = topTracks.slice(0, 2).map(track => track.id).join(',');
-    const seedArtists = topTracks.slice(0, 2).map(track => track.artists[0].id).join(',');
-    
-    console.log('Seed tracks:', seedTracks);
-    console.log('Seed artists:', seedArtists);
-    console.log('Limit:', limit);
+    // Prepare track data for OpenAI analysis
+    const trackData = topTracks.map(track => ({
+      name: track.name,
+      artists: track.artists.map(artist => artist.name).join(', '),
+      album: track.album.name,
+      genres: track.artists[0]?.genres || [],
+      popularity: track.popularity
+    }));
 
-    // Get recommendations from Spotify
-    const spotifyUrl = `https://api.spotify.com/v1/recommendations?seed_tracks=${seedTracks}&seed_artists=${seedArtists}&limit=${limit}&market=US`;
-    console.log('Spotify API URL:', spotifyUrl);
-    
-    const recommendationsResponse = await axios.get(spotifyUrl, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
+    // Create prompt for OpenAI to generate song suggestions
+    const prompt = `Based on this user's music taste, suggest ${limit} specific songs they would love. Here are their top tracks:
+
+${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists}`).join('\n')}
+
+Please suggest ${limit} specific songs that would fit their taste. For each suggestion, provide:
+1. Song title
+2. Artist name
+3. Brief reason why they'd like it
+
+Format your response as:
+SONG: [song title]
+ARTIST: [artist name]
+REASON: [brief explanation]
+
+SONG: [next song title]
+ARTIST: [next artist name]
+REASON: [brief explanation]
+
+Continue for all ${limit} suggestions.`;
+
+    // Call OpenAI API to get song suggestions
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are a music expert who understands different genres, artists, and musical tastes. You can suggest specific songs that would appeal to users based on their listening history. You provide accurate song titles and artist names."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: 800,
+      temperature: 0.7
     });
+
+    const suggestions = completion.choices[0].message.content;
+    console.log('OpenAI suggestions:', suggestions);
+
+    // Parse the suggestions
+    const songSuggestions = parseSongSuggestions(suggestions);
+    console.log('Parsed suggestions:', songSuggestions);
+
+    // Search for each suggested song on Spotify
+    const recommendations = [];
+    for (const suggestion of songSuggestions) {
+      try {
+        const searchQuery = `${suggestion.song} ${suggestion.artist}`;
+        const searchResponse = await axios.get(`https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=1`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+
+        if (searchResponse.data.tracks.items.length > 0) {
+          const track = searchResponse.data.tracks.items[0];
+          recommendations.push({
+            ...track,
+            aiReason: suggestion.reason
+          });
+        }
+      } catch (searchError) {
+        console.error(`Error searching for "${suggestion.song}" by ${suggestion.artist}:`, searchError.message);
+        // Continue with other suggestions even if one fails
+      }
+    }
 
     res.json({
       success: true,
-      recommendations: recommendationsResponse.data.tracks,
-      seedTracks: topTracks.slice(0, 2)
+      recommendations: recommendations,
+      seedTracks: topTracks.slice(0, 2),
+      aiSuggestions: songSuggestions
     });
 
   } catch (error) {
     console.error('Error fetching recommendations:', error.response?.data || error.message);
-    console.error('Spotify API error details:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      url: error.config?.url
-    });
     res.status(error.response?.status || 500).json({ 
       error: 'Failed to fetch recommendations',
       details: error.response?.data || error.message
     });
   }
 });
+
+// Parse song suggestions from OpenAI response
+function parseSongSuggestions(suggestions) {
+  const parsedSuggestions = [];
+  const lines = suggestions.split('\n').filter(line => line.trim());
+  
+  let currentSuggestion = {};
+  
+  for (const line of lines) {
+    if (line.startsWith('SONG:')) {
+      if (currentSuggestion.song) {
+        parsedSuggestions.push(currentSuggestion);
+      }
+      currentSuggestion = {
+        song: line.replace('SONG:', '').trim(),
+        artist: '',
+        reason: ''
+      };
+    } else if (line.startsWith('ARTIST:')) {
+      currentSuggestion.artist = line.replace('ARTIST:', '').trim();
+    } else if (line.startsWith('REASON:')) {
+      currentSuggestion.reason = line.replace('REASON:', '').trim();
+    }
+  }
+  
+  // Add the last suggestion if it exists
+  if (currentSuggestion.song) {
+    parsedSuggestions.push(currentSuggestion);
+  }
+  
+  return parsedSuggestions;
+}
 
 // Dashboard page
 app.get('/dashboard', (req, res) => {
