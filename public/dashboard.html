@@ -26,7 +26,8 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #e9ecef;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
         }
 
         .logo {
@@ -52,17 +53,20 @@
             background: transparent;
             border: 1px solid #d1d5db;
             color: #374151;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.875rem;
             font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .logout-btn:hover {
-            background: #f3f4f6;
-            border-color: #9ca3af;
+            background: #f8f9fa;
+            border-color: #6b7280;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .container {
@@ -112,23 +116,27 @@
             background: #ffffff;
             border: 1px solid #d1d5db;
             color: #374151;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.875rem;
             font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .time-btn.active {
             background: #000000;
             border-color: #000000;
             color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .time-btn:hover:not(.active) {
-            background: #f9fafb;
-            border-color: #9ca3af;
+            background: #f8f9fa;
+            border-color: #6b7280;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .analysis-section {
@@ -144,25 +152,27 @@
             background: #000000;
             border: none;
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 12px;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            letter-spacing: 0.025em;
         }
 
         .analyze-btn:hover {
-            background: #333333;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
         }
 
         .analyze-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
         .analysis-loading {
@@ -421,18 +431,20 @@
         .track-recommendation {
             display: flex;
             align-items: center;
-            padding: 1rem;
+            padding: 1.25rem;
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 12px;
+            border-radius: 16px;
             border: 1px solid #e9ecef;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            backdrop-filter: blur(10px);
         }
 
         .track-recommendation:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
         }
 
         .track-image {
@@ -521,19 +533,22 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.25rem;
             background: #1db954;
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(29, 185, 84, 0.3);
+            letter-spacing: 0.025em;
         }
 
         .spotify-link:hover {
             background: #1ed760;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
         }
 
         .recommendations-error {
@@ -728,7 +743,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo">🎵 MusicToStyle</div>
+        <div class="logo">MusicToStyle</div>
         <div class="user-info">
             <img id="user-avatar" class="user-avatar" src="" alt="User Avatar">
             <span id="user-name"></span>
@@ -975,11 +990,11 @@
                 
                 // Create enhanced analysis content
                 let analysisHTML = `
-                    <h3>🎨 What Your Music Taste Says About You</h3>
+                    <h3>What Your Music Taste Says About You</h3>
                     <div class="analysis-content">${data.analysis.replace(/\n/g, '<br>')}</div>
                     <div class="analysis-stats">
-                        <span>📊 ${data.tracksAnalyzed} tracks analyzed</span>
-                        <span>⏰ ${data.timeRange}</span>
+                        <span>${data.tracksAnalyzed} tracks analyzed</span>
+                        <span>${data.timeRange}</span>
                     </div>
                 `;
 
@@ -988,7 +1003,7 @@
                     console.log('Generating interactive recommendations for:', data.styleRecommendations);
                     analysisHTML += `
                         <div class="style-recommendations">
-                            <h4>🛍️ Style Recommendations</h4>
+                            <h4>Style Recommendations</h4>
                             ${data.styleRecommendations.map((rec, index) => {
                                 console.log(`Processing recommendation ${index}:`, rec);
                                 return `
@@ -1004,7 +1019,7 @@
                                     <div class="product-links" id="links-${index}">
                                         ${rec.links ? rec.links.map(link => `
                                             <a href="${link.url}" target="_blank" class="product-link">
-                                                <span class="product-link-icon">🛒</span>
+                                                <span class="product-link-icon">→</span>
                                                 ${link.item}
                                             </a>
                                         `).join('') : 'No links available'}
@@ -1018,11 +1033,11 @@
                     // Show a fallback message if no recommendations
                     analysisHTML += `
                         <div class="style-recommendations">
-                            <h4>🛍️ Style Recommendations</h4>
+                            <h4>Style Recommendations</h4>
                             <div class="recommendation-category">
                                 <div class="category-header">
                                     <h5>
-                                        <span class="category-icon">🎵</span>
+                                        <span class="category-icon">•</span>
                                         Music-Based Style Tips
                                     </h5>
                                     <button class="expand-btn">▼</button>
@@ -1030,15 +1045,15 @@
                                 <div class="style-description">Based on your musical taste, here are some general style recommendations to explore your aesthetic.</div>
                                 <div class="product-links" id="links-fallback">
                                     <a href="https://www.amazon.com/s?k=music+inspired+fashion&tag=musictostyle-20" target="_blank" class="product-link">
-                                        <span class="product-link-icon">🛒</span>
+                                        <span class="product-link-icon">→</span>
                                         Music-Inspired Fashion
                                     </a>
                                     <a href="https://www.amazon.com/s?k=vintage+band+merchandise&tag=musictostyle-20" target="_blank" class="product-link">
-                                        <span class="product-link-icon">🛒</span>
+                                        <span class="product-link-icon">→</span>
                                         Vintage Band Merchandise
                                     </a>
                                     <a href="https://www.amazon.com/s?k=indie+style+accessories&tag=musictostyle-20" target="_blank" class="product-link">
-                                        <span class="product-link-icon">🛒</span>
+                                        <span class="product-link-icon">→</span>
                                         Indie Style Accessories
                                     </a>
                                 </div>
@@ -1050,7 +1065,7 @@
                 // Add music recommendations section
                 analysisHTML += `
                     <div class="music-recommendations-section">
-                        <h4>🎵 Music Recommendations</h4>
+                        <h4>Music Recommendations</h4>
                         <div class="recommendations-loading" id="recommendations-loading">
                             <div class="loading-spinner"></div>
                             <p>Finding your next favorite songs...</p>
@@ -1081,14 +1096,14 @@
         // Interactive functions for enhanced UI
         function getCategoryIcon(category) {
             const icons = {
-                'clothing': '👕',
-                'shoes': '👟',
-                'accessories': '👜',
-                'furniture': '🪑',
-                'home decor': '🏠',
-                'art': '🎨'
+                'clothing': '•',
+                'shoes': '•',
+                'accessories': '•',
+                'furniture': '•',
+                'home decor': '•',
+                'art': '•'
             };
-            return icons[category.toLowerCase()] || '🛍️';
+            return icons[category.toLowerCase()] || '•';
         }
 
         function toggleRecommendation(index) {
@@ -1160,7 +1175,7 @@
                     <div class="track-image">
                         <img src="${track.album.images[0]?.url || 'https://via.placeholder.com/60'}" alt="${track.album.name}" />
                         <div class="play-overlay">
-                            <span class="play-icon">▶️</span>
+                            <span class="play-icon">▶</span>
                         </div>
                     </div>
                     <div class="track-info">
@@ -1174,7 +1189,7 @@
                     </div>
                     <div class="track-actions">
                         <a href="${track.external_urls.spotify}" target="_blank" class="spotify-link">
-                            <span>🎵</span> Open in Spotify
+                            <span>→</span> Open in Spotify
                         </a>
                     </div>
                 </div>
@@ -1193,7 +1208,7 @@
             recommendationsEl.style.display = 'block';
             recommendationsEl.innerHTML = `
                 <div class="recommendations-error">
-                    <p>🎵 Unable to load recommendations right now</p>
+                    <p>Unable to load recommendations right now</p>
                     <p>Try refreshing the page or check your Spotify connection</p>
                 </div>
             `;

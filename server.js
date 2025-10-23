@@ -494,6 +494,8 @@ Continue for all ${limit} suggestions.`;
 
     // Search for each suggested song on Spotify
     const recommendations = [];
+    const foundTrackIds = new Set(); // Track IDs to prevent duplicates
+    
     for (const suggestion of songSuggestions) {
       try {
         const searchQuery = `${suggestion.song} ${suggestion.artist}`;
@@ -505,7 +507,11 @@ Continue for all ${limit} suggestions.`;
 
         if (searchResponse.data.tracks.items.length > 0) {
           const track = searchResponse.data.tracks.items[0];
-          recommendations.push(track);
+          // Only add if we haven't seen this track ID before
+          if (!foundTrackIds.has(track.id)) {
+            foundTrackIds.add(track.id);
+            recommendations.push(track);
+          }
         }
       } catch (searchError) {
         console.error(`Error searching for "${suggestion.song}" by ${suggestion.artist}:`, searchError.message);
