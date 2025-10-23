@@ -383,115 +383,166 @@
             font-size: 1rem;
         }
 
-        .style-tips-section {
+        .music-recommendations-section {
             margin-top: 2rem;
             padding-top: 2rem;
             border-top: 2px solid #e9ecef;
         }
 
-        .style-tips-carousel {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
-        .tips-container {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .style-tip-card {
-            min-width: 100%;
-            padding: 2rem;
+        .recommendations-loading {
             text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            border: 1px solid #e9ecef;
+        }
+
+        .recommendations-loading .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #000000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .music-recommendations {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .track-recommendation {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            margin: 1rem;
             border-radius: 12px;
             border: 1px solid #e9ecef;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .track-recommendation:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .track-image {
             position: relative;
+            width: 60px;
+            height: 60px;
+            margin-right: 1rem;
+            border-radius: 8px;
             overflow: hidden;
         }
 
-        .style-tip-card::before {
-            content: '';
+        .track-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .play-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .tip-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            display: block;
+        .track-recommendation:hover .play-overlay {
+            opacity: 1;
         }
 
-        .tip-title {
-            font-size: 1.2rem;
+        .play-icon {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .track-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .track-name {
+            font-size: 1rem;
             font-weight: 600;
             color: #000000;
-            margin-bottom: 1rem;
+            margin: 0 0 0.25rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .tip-content {
+        .track-artist {
+            font-size: 0.875rem;
             color: #666666;
-            line-height: 1.6;
-            font-size: 0.95rem;
+            margin: 0 0 0.25rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .carousel-controls {
+        .track-album {
+            font-size: 0.8rem;
+            color: #999999;
+            margin: 0 0 0.5rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-meta {
             display: flex;
-            justify-content: center;
             gap: 1rem;
-            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #999999;
         }
 
-        .carousel-btn {
-            background: #000000;
-            color: #ffffff;
-            border: none;
-            padding: 10px 16px;
+        .track-actions {
+            margin-left: 1rem;
+        }
+
+        .spotify-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #1db954;
+            color: white;
+            text-decoration: none;
             border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
             font-size: 0.875rem;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
-        .carousel-btn:hover {
-            background: #333333;
+        .spotify-link:hover {
+            background: #1ed760;
             transform: translateY(-1px);
         }
 
-        .carousel-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .carousel-indicators {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #d1d5db;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .indicator.active {
-            background: #000000;
-            transform: scale(1.2);
+        .recommendations-error {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-radius: 16px;
+            border: 1px solid #feb2b2;
+            color: #c53030;
         }
 
         .analysis-content {
@@ -996,43 +1047,16 @@
                     `;
                 }
 
-                // Add interactive style tips carousel
+                // Add music recommendations section
                 analysisHTML += `
-                    <div class="style-tips-section">
-                        <h4>💡 Style Tips</h4>
-                        <div class="style-tips-carousel">
-                            <div class="tips-container" id="tips-container">
-                                <div class="style-tip-card">
-                                    <span class="tip-icon">🎨</span>
-                                    <div class="tip-title">Color Coordination</div>
-                                    <div class="tip-content">Match your outfit colors to the mood of your favorite songs. Dark music calls for darker tones, while upbeat tracks pair well with vibrant colors.</div>
-                                </div>
-                                <div class="style-tip-card">
-                                    <span class="tip-icon">👔</span>
-                                    <div class="tip-title">Style Personality</div>
-                                    <div class="tip-content">Your music taste reflects your personality. Rock fans might prefer edgy styles, while indie listeners often gravitate toward vintage and bohemian looks.</div>
-                                </div>
-                                <div class="style-tip-card">
-                                    <span class="tip-icon">🏠</span>
-                                    <div class="tip-title">Home Aesthetic</div>
-                                    <div class="tip-content">Create a living space that matches your musical vibe. Jazz lovers might prefer warm, cozy spaces, while electronic music fans often enjoy minimalist, modern designs.</div>
-                                </div>
-                                <div class="style-tip-card">
-                                    <span class="tip-icon">💍</span>
-                                    <div class="tip-title">Accessories</div>
-                                    <div class="tip-content">Choose accessories that complement your musical identity. Vintage jewelry for classic rock fans, statement pieces for pop enthusiasts.</div>
-                                </div>
-                            </div>
-                            <div class="carousel-controls">
-                                <button class="carousel-btn" onclick="previousTip()">‹ Previous</button>
-                                <button class="carousel-btn" onclick="nextTip()">Next ›</button>
-                            </div>
-                            <div class="carousel-indicators" id="carousel-indicators">
-                                <span class="indicator active" onclick="goToTip(0)"></span>
-                                <span class="indicator" onclick="goToTip(1)"></span>
-                                <span class="indicator" onclick="goToTip(2)"></span>
-                                <span class="indicator" onclick="goToTip(3)"></span>
-                            </div>
+                    <div class="music-recommendations-section">
+                        <h4>🎵 Music Recommendations</h4>
+                        <div class="recommendations-loading" id="recommendations-loading">
+                            <div class="loading-spinner"></div>
+                            <p>Finding your next favorite songs...</p>
+                        </div>
+                        <div class="music-recommendations" id="music-recommendations" style="display: none;">
+                            <!-- Recommendations will be loaded here -->
                         </div>
                     </div>
                 `;
@@ -1040,6 +1064,9 @@
                 resultEl.innerHTML = analysisHTML;
                 
                 resultEl.style.display = 'block';
+                
+                // Load music recommendations
+                loadMusicRecommendations();
                 
             } catch (error) {
                 console.error('Error analyzing musical taste:', error);
@@ -1052,9 +1079,6 @@
         }
 
         // Interactive functions for enhanced UI
-        let currentTipIndex = 0;
-        const totalTips = 4;
-
         function getCategoryIcon(category) {
             const icons = {
                 'clothing': '👕',
@@ -1086,33 +1110,106 @@
             }
         }
 
-        function nextTip() {
-            currentTipIndex = (currentTipIndex + 1) % totalTips;
-            updateCarousel();
+        async function loadMusicRecommendations() {
+            try {
+                const response = await fetch('/api/recommendations', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch recommendations');
+                }
+
+                const data = await response.json();
+                displayMusicRecommendations(data.recommendations);
+                
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+                showRecommendationsError();
+            }
         }
 
-        function previousTip() {
-            currentTipIndex = (currentTipIndex - 1 + totalTips) % totalTips;
-            updateCarousel();
-        }
-
-        function goToTip(index) {
-            currentTipIndex = index;
-            updateCarousel();
-        }
-
-        function updateCarousel() {
-            const container = document.getElementById('tips-container');
-            const indicators = document.querySelectorAll('.indicator');
+        function displayMusicRecommendations(recommendations) {
+            const loadingEl = document.getElementById('recommendations-loading');
+            const recommendationsEl = document.getElementById('music-recommendations');
             
-            if (container) {
-                container.style.transform = `translateX(-${currentTipIndex * 100}%)`;
+            if (!loadingEl || !recommendationsEl) return;
+
+            // Hide loading, show recommendations
+            loadingEl.style.display = 'none';
+            recommendationsEl.style.display = 'block';
+
+            // Generate recommendations HTML
+            const recommendationsHTML = recommendations.map(track => `
+                <div class="track-recommendation" onclick="playTrackPreview('${track.preview_url}')">
+                    <div class="track-image">
+                        <img src="${track.album.images[0]?.url || 'https://via.placeholder.com/60'}" alt="${track.album.name}" />
+                        <div class="play-overlay">
+                            <span class="play-icon">▶️</span>
+                        </div>
+                    </div>
+                    <div class="track-info">
+                        <h5 class="track-name">${track.name}</h5>
+                        <p class="track-artist">${track.artists.map(artist => artist.name).join(', ')}</p>
+                        <p class="track-album">${track.album.name}</p>
+                        <div class="track-meta">
+                            <span class="track-popularity">Popularity: ${track.popularity}%</span>
+                            <span class="track-duration">${Math.floor(track.duration_ms / 60000)}:${String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}</span>
+                        </div>
+                    </div>
+                    <div class="track-actions">
+                        <a href="${track.external_urls.spotify}" target="_blank" class="spotify-link">
+                            <span>🎵</span> Open in Spotify
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+
+            recommendationsEl.innerHTML = recommendationsHTML;
+        }
+
+        function showRecommendationsError() {
+            const loadingEl = document.getElementById('recommendations-loading');
+            const recommendationsEl = document.getElementById('music-recommendations');
+            
+            if (!loadingEl || !recommendationsEl) return;
+
+            loadingEl.style.display = 'none';
+            recommendationsEl.style.display = 'block';
+            recommendationsEl.innerHTML = `
+                <div class="recommendations-error">
+                    <p>🎵 Unable to load recommendations right now</p>
+                    <p>Try refreshing the page or check your Spotify connection</p>
+                </div>
+            `;
+        }
+
+        function playTrackPreview(previewUrl) {
+            if (!previewUrl) {
+                alert('No preview available for this track');
+                return;
             }
             
-            indicators.forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === currentTipIndex);
+            // Stop any currently playing audio
+            const existingAudio = document.getElementById('track-preview');
+            if (existingAudio) {
+                existingAudio.pause();
+                existingAudio.remove();
+            }
+            
+            // Create and play new audio
+            const audio = document.createElement('audio');
+            audio.id = 'track-preview';
+            audio.src = previewUrl;
+            audio.volume = 0.7;
+            audio.play().catch(error => {
+                console.error('Error playing preview:', error);
+                alert('Unable to play preview');
             });
         }
+
 
         // Logout function
         function logout() {

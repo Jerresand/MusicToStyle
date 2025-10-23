@@ -414,6 +414,57 @@ STYLE: [brief style description]
   }
 });
 
+// Get music recommendations based on user's top tracks
+app.get('/api/recommendations', async (req, res) => {
+  const accessToken = req.headers.authorization?.replace('Bearer ', '');
+  
+  if (!accessToken) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  try {
+    const timeRange = req.query.time_range || 'medium_term';
+    const limit = req.query.limit || 5;
+
+    // Get user's top tracks to use as seed
+    const tracksResponse = await axios.get(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=5`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    const topTracks = tracksResponse.data.items;
+    
+    if (topTracks.length === 0) {
+      return res.status(400).json({ error: 'No tracks found for recommendations' });
+    }
+
+    // Get seed artists and tracks for recommendations
+    const seedTracks = topTracks.slice(0, 2).map(track => track.id).join(',');
+    const seedArtists = topTracks.slice(0, 2).map(track => track.artists[0].id).join(',');
+
+    // Get recommendations from Spotify
+    const recommendationsResponse = await axios.get(`https://api.spotify.com/v1/recommendations?seed_tracks=${seedTracks}&seed_artists=${seedArtists}&limit=${limit}&market=US`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    res.json({
+      success: true,
+      recommendations: recommendationsResponse.data.tracks,
+      seedTracks: topTracks.slice(0, 2)
+    });
+
+  } catch (error) {
+    console.error('Error fetching recommendations:', error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({ 
+      error: 'Failed to fetch recommendations',
+      details: error.response?.data || error.message
+    });
+  }
+});
+
 // Dashboard page
 app.get('/dashboard', (req, res) => {
   res.sendFile(__dirname + '/public/dashboard.html');
