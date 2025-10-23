@@ -1112,17 +1112,30 @@
 
         async function loadMusicRecommendations() {
             try {
+                console.log('Loading recommendations with access token:', accessToken ? 'present' : 'missing');
+                
+                if (!accessToken) {
+                    console.error('No access token available for recommendations');
+                    showRecommendationsError();
+                    return;
+                }
+                
                 const response = await fetch('/api/recommendations', {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }
                 });
 
+                console.log('Recommendations response status:', response.status);
+                
                 if (!response.ok) {
-                    throw new Error('Failed to fetch recommendations');
+                    const errorText = await response.text();
+                    console.error('Recommendations API error:', response.status, errorText);
+                    throw new Error(`Failed to fetch recommendations: ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log('Recommendations data:', data);
                 displayMusicRecommendations(data.recommendations);
                 
             } catch (error) {
