@@ -236,16 +236,79 @@
         .recommendation-category {
             margin-bottom: 2rem;
             padding: 1.5rem;
-            background: #f8f9fa;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
             border: 1px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recommendation-category::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            background-size: 300% 100%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .recommendation-category:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .recommendation-category.expanded {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
         }
 
         .recommendation-category h5 {
             color: #000000;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
+            margin: 0;
+            font-size: 1.1rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-icon {
+            font-size: 1.2rem;
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            color: #666666;
+        }
+
+        .expand-btn:hover {
+            color: #000000;
+        }
+
+        .expand-btn.rotated {
+            transform: rotate(180deg);
         }
 
         .style-description {
@@ -253,34 +316,202 @@
             margin-bottom: 1rem;
             font-size: 0.9rem;
             font-style: italic;
+            line-height: 1.5;
         }
 
         .product-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .product-links.expanded {
+            opacity: 1;
+            max-height: 500px;
         }
 
         .product-link {
-            background: #000000;
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
             color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 12px;
             text-decoration: none;
             font-size: 0.875rem;
             font-weight: 500;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             border: 1px solid #000000;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .product-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .product-link:hover::before {
+            left: 100%;
         }
 
         .product-link:hover {
-            background: #333333;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         .product-link:active {
-            transform: translateY(0);
+            transform: translateY(0) scale(0.98);
+        }
+
+        .product-link-icon {
+            font-size: 1rem;
+        }
+
+        .style-tips-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .style-tips-carousel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .tips-container {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .style-tip-card {
+            min-width: 100%;
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            margin: 1rem;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .style-tip-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+        }
+
+        .tip-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .tip-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 1rem;
+        }
+
+        .tip-content {
+            color: #666666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .carousel-btn {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .carousel-btn:hover {
+            background: #333333;
+            transform: translateY(-1px);
+        }
+
+        .carousel-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #d1d5db;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: #000000;
+            transform: scale(1.2);
+        }
+
+        .analysis-content {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .analysis-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            border-radius: 16px 16px 0 0;
         }
 
         .loading {
@@ -412,10 +643,33 @@
 
             .product-links {
                 gap: 0.5rem;
+                grid-template-columns: 1fr;
             }
 
             .product-link {
-                padding: 6px 12px;
+                padding: 10px 16px;
+                font-size: 0.8rem;
+            }
+
+            .style-tip-card {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+
+            .tip-icon {
+                font-size: 2rem;
+            }
+
+            .tip-title {
+                font-size: 1rem;
+            }
+
+            .carousel-controls {
+                gap: 0.5rem;
+            }
+
+            .carousel-btn {
+                padding: 8px 12px;
                 font-size: 0.8rem;
             }
         }
@@ -513,6 +767,14 @@
                 });
 
                 if (!response.ok) {
+                    // Handle expired token (401) by redirecting to login
+                    if (response.status === 401) {
+                        console.log('Access token expired, redirecting to login...');
+                        localStorage.removeItem('spotify_access_token');
+                        window.location.href = '/';
+                        return;
+                    }
+                    
                     let details = '';
                     try { details = JSON.stringify(await response.json()); } catch {}
                     throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText} ${details}`);
@@ -527,7 +789,10 @@
                 document.getElementById('user-avatar').src = userProfile.images[0]?.url || '/default-avatar.png';
             } catch (error) {
                 console.error('Error loading profile:', error);
-                showError('Failed to fetch profile. Please try logging in again.');
+                // If it's a network error or other issue, show error message
+                if (!error.message.includes('Failed to fetch profile: 401')) {
+                    showError('Failed to fetch profile. Please try logging in again.');
+                }
                 throw error;
             }
         }
@@ -548,6 +813,13 @@
                 });
 
                 if (!response.ok) {
+                    // Handle expired token (401) by redirecting to login
+                    if (response.status === 401) {
+                        console.log('Access token expired, redirecting to login...');
+                        localStorage.removeItem('spotify_access_token');
+                        window.location.href = '/';
+                        return;
+                    }
                     throw new Error('Failed to fetch top tracks');
                 }
 
@@ -631,13 +903,27 @@
                 });
 
                 if (!response.ok) {
+                    // Handle expired token (401) by redirecting to login
+                    if (response.status === 401) {
+                        console.log('Access token expired, redirecting to login...');
+                        localStorage.removeItem('spotify_access_token');
+                        window.location.href = '/';
+                        return;
+                    }
+                    
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Failed to analyze musical taste');
                 }
 
                 const data = await response.json();
                 
-                resultEl.innerHTML = `
+                // Debug logging
+                console.log('API Response:', data);
+                console.log('Style Recommendations:', data.styleRecommendations);
+                console.log('Style Recommendations Length:', data.styleRecommendations ? data.styleRecommendations.length : 'undefined');
+                
+                // Create enhanced analysis content
+                let analysisHTML = `
                     <h3>🎨 What Your Music Taste Says About You</h3>
                     <div class="analysis-content">${data.analysis.replace(/\n/g, '<br>')}</div>
                     <div class="analysis-stats">
@@ -645,6 +931,113 @@
                         <span>⏰ ${data.timeRange}</span>
                     </div>
                 `;
+
+                // Add interactive style recommendations if available
+                if (data.styleRecommendations && data.styleRecommendations.length > 0) {
+                    console.log('Generating interactive recommendations for:', data.styleRecommendations);
+                    analysisHTML += `
+                        <div class="style-recommendations">
+                            <h4>🛍️ Style Recommendations</h4>
+                            ${data.styleRecommendations.map((rec, index) => {
+                                console.log(`Processing recommendation ${index}:`, rec);
+                                return `
+                                <div class="recommendation-category" onclick="toggleRecommendation(${index})">
+                                    <div class="category-header">
+                                        <h5>
+                                            <span class="category-icon">${getCategoryIcon(rec.category)}</span>
+                                            ${rec.category}
+                                        </h5>
+                                        <button class="expand-btn">▼</button>
+                                    </div>
+                                    <div class="style-description">${rec.style}</div>
+                                    <div class="product-links" id="links-${index}">
+                                        ${rec.links ? rec.links.map(link => `
+                                            <a href="${link.url}" target="_blank" class="product-link">
+                                                <span class="product-link-icon">🛒</span>
+                                                ${link.item}
+                                            </a>
+                                        `).join('') : 'No links available'}
+                                    </div>
+                                </div>
+                            `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    // Show a fallback message if no recommendations
+                    analysisHTML += `
+                        <div class="style-recommendations">
+                            <h4>🛍️ Style Recommendations</h4>
+                            <div class="recommendation-category">
+                                <div class="category-header">
+                                    <h5>
+                                        <span class="category-icon">🎵</span>
+                                        Music-Based Style Tips
+                                    </h5>
+                                    <button class="expand-btn">▼</button>
+                                </div>
+                                <div class="style-description">Based on your musical taste, here are some general style recommendations to explore your aesthetic.</div>
+                                <div class="product-links" id="links-fallback">
+                                    <a href="https://www.amazon.com/s?k=music+inspired+fashion&tag=musictostyle-20" target="_blank" class="product-link">
+                                        <span class="product-link-icon">🛒</span>
+                                        Music-Inspired Fashion
+                                    </a>
+                                    <a href="https://www.amazon.com/s?k=vintage+band+merchandise&tag=musictostyle-20" target="_blank" class="product-link">
+                                        <span class="product-link-icon">🛒</span>
+                                        Vintage Band Merchandise
+                                    </a>
+                                    <a href="https://www.amazon.com/s?k=indie+style+accessories&tag=musictostyle-20" target="_blank" class="product-link">
+                                        <span class="product-link-icon">🛒</span>
+                                        Indie Style Accessories
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Add interactive style tips carousel
+                analysisHTML += `
+                    <div class="style-tips-section">
+                        <h4>💡 Style Tips</h4>
+                        <div class="style-tips-carousel">
+                            <div class="tips-container" id="tips-container">
+                                <div class="style-tip-card">
+                                    <span class="tip-icon">🎨</span>
+                                    <div class="tip-title">Color Coordination</div>
+                                    <div class="tip-content">Match your outfit colors to the mood of your favorite songs. Dark music calls for darker tones, while upbeat tracks pair well with vibrant colors.</div>
+                                </div>
+                                <div class="style-tip-card">
+                                    <span class="tip-icon">👔</span>
+                                    <div class="tip-title">Style Personality</div>
+                                    <div class="tip-content">Your music taste reflects your personality. Rock fans might prefer edgy styles, while indie listeners often gravitate toward vintage and bohemian looks.</div>
+                                </div>
+                                <div class="style-tip-card">
+                                    <span class="tip-icon">🏠</span>
+                                    <div class="tip-title">Home Aesthetic</div>
+                                    <div class="tip-content">Create a living space that matches your musical vibe. Jazz lovers might prefer warm, cozy spaces, while electronic music fans often enjoy minimalist, modern designs.</div>
+                                </div>
+                                <div class="style-tip-card">
+                                    <span class="tip-icon">💍</span>
+                                    <div class="tip-title">Accessories</div>
+                                    <div class="tip-content">Choose accessories that complement your musical identity. Vintage jewelry for classic rock fans, statement pieces for pop enthusiasts.</div>
+                                </div>
+                            </div>
+                            <div class="carousel-controls">
+                                <button class="carousel-btn" onclick="previousTip()">‹ Previous</button>
+                                <button class="carousel-btn" onclick="nextTip()">Next ›</button>
+                            </div>
+                            <div class="carousel-indicators" id="carousel-indicators">
+                                <span class="indicator active" onclick="goToTip(0)"></span>
+                                <span class="indicator" onclick="goToTip(1)"></span>
+                                <span class="indicator" onclick="goToTip(2)"></span>
+                                <span class="indicator" onclick="goToTip(3)"></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                resultEl.innerHTML = analysisHTML;
                 
                 resultEl.style.display = 'block';
                 
@@ -656,6 +1049,69 @@
                 analyzeBtn.disabled = false;
                 loadingEl.style.display = 'none';
             }
+        }
+
+        // Interactive functions for enhanced UI
+        let currentTipIndex = 0;
+        const totalTips = 4;
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'clothing': '👕',
+                'shoes': '👟',
+                'accessories': '👜',
+                'furniture': '🪑',
+                'home decor': '🏠',
+                'art': '🎨'
+            };
+            return icons[category.toLowerCase()] || '🛍️';
+        }
+
+        function toggleRecommendation(index) {
+            // Handle both regular recommendations and fallback
+            const category = document.querySelector(`.recommendation-category:nth-of-type(${index + 1})`);
+            const links = document.getElementById(`links-${index}`) || document.getElementById('links-fallback');
+            const expandBtn = category.querySelector('.expand-btn');
+            
+            if (links && expandBtn) {
+                if (links.classList.contains('expanded')) {
+                    links.classList.remove('expanded');
+                    category.classList.remove('expanded');
+                    expandBtn.classList.remove('rotated');
+                } else {
+                    links.classList.add('expanded');
+                    category.classList.add('expanded');
+                    expandBtn.classList.add('rotated');
+                }
+            }
+        }
+
+        function nextTip() {
+            currentTipIndex = (currentTipIndex + 1) % totalTips;
+            updateCarousel();
+        }
+
+        function previousTip() {
+            currentTipIndex = (currentTipIndex - 1 + totalTips) % totalTips;
+            updateCarousel();
+        }
+
+        function goToTip(index) {
+            currentTipIndex = index;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const container = document.getElementById('tips-container');
+            const indicators = document.querySelectorAll('.indicator');
+            
+            if (container) {
+                container.style.transform = `translateX(-${currentTipIndex * 100}%)`;
+            }
+            
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentTipIndex);
+            });
         }
 
         // Logout function

@@ -22,6 +22,11 @@ function getRedirectUri(req) {
   // If an explicit env override is set, prefer it
   if (process.env.REDIRECT_URI) return process.env.REDIRECT_URI;
 
+  // For local development with vercel dev, force localhost
+  if (process.env.NODE_ENV !== 'production' || req.headers.host?.includes('localhost')) {
+    return 'http://localhost:3001/callback';
+  }
+
   const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').split(',')[0].trim();
   const host = (req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
   if (!host) {
@@ -31,10 +36,13 @@ function getRedirectUri(req) {
   return `${proto}://${host}/callback`;
 }
 
-// OpenAI configuration
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// OpenAI configuration - only initialize if API key is available
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 // Generate random string for state parameter
 const generateRandomString = (length) => {
@@ -281,6 +289,10 @@ app.post('/api/analyze-taste', async (req, res) => {
     return res.status(401).json({ error: 'Access token required' });
   }
 
+  if (!openai) {
+    return res.status(500).json({ error: 'OpenAI service not configured' });
+  }
+
   try {
     // Get time range from request body, default to medium_term
     const timeRange = req.body.time_range || 'medium_term';
@@ -320,11 +332,11 @@ app.post('/api/analyze-taste', async (req, res) => {
                          timeRange === 'medium_term' ? 'the last 6 months' : 
                          'all time';
     
-    const prompt = `Listen up, you judgmental piece of shit. I need you to analyze this person's music taste with some actual nuance for once. Their name is "${profileResponse.data.display_name}" and here's what they've been bumping over ${timeRangeText}:
+    const prompt = `Alright, let's dive into this person's musical psyche. I need you to analyze "${profileResponse.data.display_name}"'s music taste with some real depth and then seamlessly transition into what their aesthetic choices should be. Here's what they've been vibing to over ${timeRangeText}:
 
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists} (from album: ${track.album})`).join('\n')}
 
-Here's the fucking deal - I want VARIANCE in your criticism. Don't just default to "everything is trash." Actually look at what they're listening to:
+Here's what I want from you - be brutally honest but smart about their musical taste:
 
 - If they have genuinely good taste (classic albums, respected artists, diverse genres): Call them out for being pretentious assholes who probably name-drop bands to sound cool at parties. Roast their personality, not the music.
 - If they have basic/mainstream taste: Tear into how predictable and boring they are, but acknowledge that at least they're not trying too hard.
@@ -342,7 +354,11 @@ BUT ALSO BE SMART:
 - If someone's taste is genuinely diverse and interesting, call them out for being insufferable know-it-alls
 - Don't just default to "everything sucks" - that's lazy as fuck
 
-Use "you" form, curse like a sailor, and make it brutally honest but with actual thought behind it. No bullet points - just flowing roast paragraphs that actually make sense.
+Now here's the key part - after you've roasted their musical taste, naturally transition into their aesthetic world. Think about it: their music choices reveal their personality, their vibe, their entire aesthetic sensibility. Use that analysis to seamlessly flow into style recommendations.
+
+For example, if they're into dark, brooding music, their style should match that energy. If they're all about mainstream pop, they probably need some help with their aesthetic choices. If they're pretentious music snobs, they probably dress like they're trying too hard too.
+
+Use "you" form, curse like a sailor, and make it brutally honest but with actual thought behind it. No bullet points - just flowing paragraphs that naturally move from music critique to aesthetic recommendations.
 
 After your analysis, provide specific product recommendations in this EXACT format:
 [STYLE_RECOMMENDATIONS]
@@ -361,7 +377,7 @@ STYLE: [brief style description]
       messages: [
         {
           role: "system",
-          content: "You are a brutally honest, sharp-tongued style critic who analyzes music taste with actual intelligence and variance. You're daring, profane, and don't hold back on controversial takes. You're not just mean for the sake of being mean - you actually assess the quality of their taste and roast accordingly. If someone has good taste, you call them pretentious assholes rather than shitting on the music itself. If they have bad taste, you destroy it. If they're basic, you roast their predictability. If they're trying too hard, you call out their performative bullshit. You use profanity liberally, make sharp observations, and deliver brutally honest critiques that actually make sense. You speak directly to the person in 'you' form and give them style recommendations based on your analysis."
+          content: "You are a brutally honest, sharp-tongued critic who seamlessly blends music analysis with aesthetic recommendations. You're daring, profane, and don't hold back on controversial takes, but you're also smart about connecting someone's musical taste to their style choices. You understand that music reveals personality, vibe, and aesthetic sensibility. You start by roasting their musical taste with intelligence and variance - if someone has good taste, you call them pretentious assholes rather than shitting on the music itself. If they have bad taste, you destroy it. If they're basic, you roast their predictability. If they're trying too hard, you call out their performative bullshit. Then you naturally transition into their aesthetic world, using their music choices to inform style recommendations. You use profanity liberally, make sharp observations, and deliver brutally honest critiques that flow naturally from music to style. You speak directly to the person in 'you' form and create a cohesive narrative that connects their musical identity to their aesthetic choices."
         },
         {
           role: "user",
@@ -414,9 +430,6 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(__dirname + '/public/dashboard.html');
 });
 
-// Export the app for Vercel
-module.exports = app;
-
 // Only start server if not in Vercel environment
 if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
   const PORT = process.env.PORT || 3000;
@@ -425,3 +438,6 @@ if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
     console.log('Make sure to set up your Spotify app credentials in the .env file');
   });
 }
+
+// Export the app for Vercel
+module.exports = app;
