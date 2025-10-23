@@ -442,9 +442,16 @@ app.get('/api/recommendations', async (req, res) => {
     // Get seed artists and tracks for recommendations
     const seedTracks = topTracks.slice(0, 2).map(track => track.id).join(',');
     const seedArtists = topTracks.slice(0, 2).map(track => track.artists[0].id).join(',');
+    
+    console.log('Seed tracks:', seedTracks);
+    console.log('Seed artists:', seedArtists);
+    console.log('Limit:', limit);
 
     // Get recommendations from Spotify
-    const recommendationsResponse = await axios.get(`https://api.spotify.com/v1/recommendations?seed_tracks=${seedTracks}&seed_artists=${seedArtists}&limit=${limit}&market=US`, {
+    const spotifyUrl = `https://api.spotify.com/v1/recommendations?seed_tracks=${seedTracks}&seed_artists=${seedArtists}&limit=${limit}&market=US`;
+    console.log('Spotify API URL:', spotifyUrl);
+    
+    const recommendationsResponse = await axios.get(spotifyUrl, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
@@ -458,6 +465,12 @@ app.get('/api/recommendations', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching recommendations:', error.response?.data || error.message);
+    console.error('Spotify API error details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url
+    });
     res.status(error.response?.status || 500).json({ 
       error: 'Failed to fetch recommendations',
       details: error.response?.data || error.message
