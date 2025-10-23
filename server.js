@@ -453,23 +453,18 @@ app.get('/api/recommendations', async (req, res) => {
     }));
 
     // Create prompt for OpenAI to generate song suggestions
-    const prompt = `Based on this user's music taste, suggest ${limit} specific songs they would love. Here are their top tracks:
+    const prompt = `You are a music expert with great taste. Based on this user's listening habits, suggest ${limit} songs they would genuinely enjoy. Here are their top tracks:
 
 ${trackData.map((track, index) => `${index + 1}. "${track.name}" by ${track.artists}`).join('\n')}
 
-Please suggest ${limit} specific songs that would fit their taste. For each suggestion, provide:
-1. Song title
-2. Artist name
-3. Brief reason why they'd like it
+Use your intuition to suggest songs that match their taste while potentially expanding their horizons. Consider Pitchfork album scores and critical reception, but prioritize songs that would actually resonate with them based on their current preferences.
 
 Format your response as:
 SONG: [song title]
 ARTIST: [artist name]
-REASON: [brief explanation]
 
 SONG: [next song title]
 ARTIST: [next artist name]
-REASON: [brief explanation]
 
 Continue for all ${limit} suggestions.`;
 
@@ -479,7 +474,7 @@ Continue for all ${limit} suggestions.`;
       messages: [
         {
           role: "system",
-          content: "You are a music expert who understands different genres, artists, and musical tastes. You can suggest specific songs that would appeal to users based on their listening history. You provide accurate song titles and artist names."
+          content: "You are a music expert with great taste and knowledge of Pitchfork album scores and critical reception. You understand different genres and can suggest songs that would genuinely appeal to users based on their listening history. You provide accurate song titles and artist names for songs that match their taste while potentially introducing them to quality music they might not have discovered yet."
         },
         {
           role: "user",
@@ -510,10 +505,7 @@ Continue for all ${limit} suggestions.`;
 
         if (searchResponse.data.tracks.items.length > 0) {
           const track = searchResponse.data.tracks.items[0];
-          recommendations.push({
-            ...track,
-            aiReason: suggestion.reason
-          });
+          recommendations.push(track);
         }
       } catch (searchError) {
         console.error(`Error searching for "${suggestion.song}" by ${suggestion.artist}:`, searchError.message);
@@ -551,13 +543,10 @@ function parseSongSuggestions(suggestions) {
       }
       currentSuggestion = {
         song: line.replace('SONG:', '').trim(),
-        artist: '',
-        reason: ''
+        artist: ''
       };
     } else if (line.startsWith('ARTIST:')) {
       currentSuggestion.artist = line.replace('ARTIST:', '').trim();
-    } else if (line.startsWith('REASON:')) {
-      currentSuggestion.reason = line.replace('REASON:', '').trim();
     }
   }
   
