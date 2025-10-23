@@ -393,24 +393,13 @@ STYLE: [brief style description]
     // Parse style recommendations from the analysis
     const styleRecommendations = parseStyleRecommendations(analysis);
 
-    // Create links text to append to analysis
-    let linksText = '';
-    if (styleRecommendations && styleRecommendations.length > 0) {
-      linksText = '\n\n🛍️ **PRODUCT LINKS:**\n';
-      styleRecommendations.forEach(rec => {
-        linksText += `\n**${rec.category}:**\n`;
-        rec.links.forEach(link => {
-          linksText += `• [${link.item}](${link.url})\n`;
-        });
-      });
-    }
-
-    // Combine analysis with links
-    const finalAnalysis = analysis + linksText;
+    // Remove the [STYLE_RECOMMENDATIONS] section from the analysis text
+    // to keep only the critic's text for display
+    const cleanAnalysis = analysis.replace(/\[STYLE_RECOMMENDATIONS\][\s\S]*?\[\/STYLE_RECOMMENDATIONS\]/g, '').trim();
 
     res.json({
       success: true,
-      analysis: finalAnalysis,
+      analysis: cleanAnalysis,
       styleRecommendations: styleRecommendations,
       tracksAnalyzed: tracks.length,
       timeRange: timeRangeText
